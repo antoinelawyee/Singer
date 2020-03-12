@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+
+
+    <section>
+
+       <div id="playground_face">
+         <img src="svg/SINGER-03.svg" height="90%">
+         <div>
+          <button id="face" onclick="ShowFace()">Face</button>
+          <button id="Face" onclick="ShowBack()">Dos</button>
+          <button id="export" onclick="openModal()">Exporter</button>
+          <div class="overlay">
+            <div class="popup">
+              
+              Dans quel format souhaitez-vous exporter votre patron ?
+              <SELECT>
+                  <OPTION>JPG
+                  <OPTION>PNG
+                  <OPTION>SVG
+                  <OPTION>JPEG 2000
+                  <OPTION>PDF
+              </SELECT>
+              
+              <button class="valider" onclick="confirm()">Valider</button>
+              <span class="btnClose" onclick="closeModal()">&times;</span>
+            </div>
+          </div>
+         </div>
+        </div>
+
+         <div id="playground_dos" >
+          <img src="svg/SINGER_teeshirtdos-04.svg" height="90%">
+          <div class="coucou">
+           <button id="face" onclick="ShowFace()">Face</button>
+           <button id="Face" onclick="ShowBack()">Dos</button>
+          </div>
+        </div>
+
+      <aside id="rightPanel">
+          <img src="svg/button-01.svg" class="box button " onclick="change(event)">
+          <img src="svg/poche.svg" class="box poche" onclick="change(event)">
+          <img src="svg/col.svg" class="box zipper" onclick="change(event)">
+          <img src="svg/zipper.svg" class="box zipper" onclick="change(event)">
+          <img src="têtes/Antoine.svg" class="box zipper" onclick="change(event)">
+          <img src="têtes/vince.svg" class="box zipper" onclick="change(event)">
+          <img src="têtes/Celeste.svg" class="box zipper" onclick="change(event)">
+          <img src="têtes/Charline.svg" class="box zipper" onclick="change(event)">
+          <img src="têtes/Estelle.svg" class="box zipper" onclick="change(event)">
+          <img src="Têtes/Ines.svg" class="box zipper" onclick="change(event)">
+          <img src="Têtes/Roman.svg" class="box zipper" onclick="change(event)">
+          <img src="Têtes/Simon.svg" class="box zipper" onclick="change(event)">
+          <img src="Têtes/Tony.svg" class="box zipper" onclick="change(event)">
+          <img src="Têtes/carla.svg" class="box zipper" onclick="change(event)">
+          <img src="Têtes/kevin.svg" class="box zipper" onclick="change(event)">
+      </aside>
+
+    </section>
+
+
+    <script src="script.js"></script>
+  </body>
+</html>
