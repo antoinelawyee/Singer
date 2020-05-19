@@ -1,140 +1,150 @@
-let isMouseDown = false
-let offset = [0, 0]
-let selectedBox
-let playground = playground_face
-var popup = document.querySelector('.popup');
-var overlay = document.querySelector('.overlay');
-var btnClose = document.querySelector('.btnClose');
-var valider = document.querySelector('.valider');
-var scale = document.querySelector('.scale');
+var mymap = L.map('mapid').setView([48.866667, 2.333333], 12);
+var layerGroup = L.layerGroup().addTo(mymap);
 
 
-function change(event){
-  let scaleValue = event.target.getBoundingClientRect().width / event.target.offsetWidth;
-  scaleValue += 0.5
-  if(scaleValue >= 3)
-  scaleValue = 1
-  event.target.style.transform = "scale(" + scaleValue + ")";
-
-  //document.querySelector('.scale').classList.add('bigger');
-}
-
-function openModal(){
-  overlay.style.display = 'block';
-}
-
-function closeModal(){
-  overlay.style.display = 'none';
-}
-
-function closeModal(){
-  overlay.style.display = 'none';
-}
-
-function confirm(){
-  alert("Document exporté dans le dossier images");
-  overlay.style.display = 'none';
-}
 
 
-function ShowFace(){
-  console.log("face");
-  playground = playground_face
-  document.getElementById("playground_dos").style.display = "none";
-  document.getElementById("playground_face").style.display = "flex";  
-}
 
-function ShowBack(){
-  console.log("back");
-  playground = playground_dos
-  document.getElementById("playground_face").style.display = "none";
-  document.getElementById("playground_dos").style.display = "flex";
-}
+var Stamen_TonerBackground = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-background/{z}/{x}/{y}{r}.{ext}', {
+	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+	subdomains: 'abcd',
+	minZoom: 0,
+	maxZoom: 20,
+	ext: 'png'
+}).addTo(mymap);
 
-/* quand on clique et maintient appuyé */
-document.addEventListener("mousedown", function(event) {
-  // si on ce n'est pas une box ou
-  // qu'on n'est pas dans le panel de droite, on ne fait rien
-  if(!event.target.classList.contains("box") || isMouseDown)
-    return;
-  
-  // sinon
-  offset[0] = event.target.offsetLeft - event.clientX
-  offset[1] = event.target.offsetTop - event.clientY
-  console.log(event.target.classList)
-  // on clone la box
-  if (!event.target.classList.contains("moved") ){
-    selectedBox = event.target.cloneNode(true)
-  } else {
-    selectedBox = event.target
-  }
-  
-  // on lui ajoute la classe moving
-  selectedBox.classList.add("moving")
-  
-  // on lui met sa position
-  selectedBox.style.left = (event.clientX + offset[0]) + "px"
-  selectedBox.style.top = (event.clientY + offset[1]) + "px"
+var OpenRailwayMap = L.tileLayer('https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png', {
+	maxZoom: 19,
+	attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Map style: &copy; <a href="https://www.OpenRailwayMap.org">OpenRailwayMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+}).addTo(mymap);
 
-  if (!event.target.classList.contains("moved") ){
-    // et on l'ajoute déjà au panel de droite
-    playground.appendChild(selectedBox)
-  }
 
-  isMouseDown = true
+
+var marker = L.marker([48.866667, 2.333333], {
+  markerUrl: 'http://leafletjs.com/docs/images/leaf-green.png',
+  shadowUrl: 'leaf-shadow.png',
 })
 
-/* quand on bouge avec la souris */
-document.addEventListener("mousemove", function(event) {
-  // si on ne survole pas un bloc qui a la classe moving
-  // ou si le booléen isMouveDown n'est pas à true
-  // on arrête tout
-  if(!event.target.classList.contains("moving") && !isMouseDown)
-    return
-  
-  // sinon on met à jour la position du bloc
-  // par rapport à la souris
-  selectedBox.style.left = (event.clientX + offset[0]) + "px"
-  selectedBox.style.top = (event.clientY + offset[1]) + "px"
+
+var circle = L.circle([48.84527837954024, 2.2616395023845515], {
+    color: 'red',
+    fillColor: 'red',
+    fillOpacity: 0.5,
+    radius: 500
 })
 
-/* quand on relâche la souris */
-document.addEventListener("mouseup", function(event) {
-  // si on ne survole pas un bloc qui a la classe moving
-  // ou si le booléen isMouveDown n'est pas à true
-  // on arrête tout
-  if(!event.target.classList.contains("moving") && !isMouseDown)
-    return
-  
-  // si le bloc qu'on relâche n'est pas dans le panel de gauche
-  // alors on le retire du panel de gauche
-  if(!isOverlapping()) {
-    playground.removeChild(selectedBox)
+var polygon = L.polygon([
+    [48.866667, 2.333333],
+    [48.84527837954024, 2.2616395023845515],
+    [48.86564638918743, 2.3212051391601562]
+])
+
+marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
+circle.bindPopup("I am a circle.");
+polygon.bindPopup("I am a polygon.");
+
+
+
+async function getData(query) {
+  if(query==undefined){
+    query = " ";
   }
+
+    let url =
+      "https://opendata.paris.fr/api/records/1.0/search/?dataset=que-faire-a-paris-&q=" + query + "&facet=category&facet=tags&facet=address_zipcode&facet=address_city&facet=pmr&facet=blind&facet=deaf&facet=access_type&facet=price_type";
+    let response = await fetch(url);
   
-  // sinon on retire la classe moving
-  // mais on le garde en position absolute
-  selectedBox.classList.remove("moving")
-  selectedBox.classList.add("moved")
-  selectedBox.style.position = "absolute"
+    let data = await response.json();
 
-  isMouseDown = false;
+    layerGroup.clearLayers();
+
+    data.records.forEach(function(event) {
+      // le titre de l'événement
+      let title = event.fields.title;
+      //l'adresse de l'évènement
+      let rue = event.fields.address_street;
+      let ville = event.fields.address_city;
+      let code_postale = event.fields.address_zipcode;
+      let date = event.fields.date_start;
+      let contact = event.fields.contact_name;
+      let image = event.fields.cover_url;
+
+      
+      // on vérifie que l'événement a bien le champs 'lat_lon'
+      if(event.fields.lat_lon) {
   
-})
-
-// un fonction pour savoir si deux blocs se recouvrent
-function isOverlapping() {
-  let playgroundRect = playground.getBoundingClientRect()
-  let selectedBoxRect = selectedBox.getBoundingClientRect()
-
-  return (selectedBoxRect.left > playgroundRect.left &&
-          selectedBoxRect.bottom < playgroundRect.bottom &&
-          selectedBoxRect.top > playgroundRect.top &&
-          selectedBoxRect.right < playgroundRect.right)
-
-}
+        // si oui, on ajoute le marqueur
+        
+        // julien : ce code est bien, tu ajoute le marqueur à la carte
+     
+        // si oui, on ajoute le marqueur
+        marker = L.marker(event.fields.lat_lon)
+        marker.bindPopup( title + "<br> "+  ville  +" "+ code_postale +"<br> "+ rue +"<br> "+ contact +"<br> "+ date +"<br> "+ '<img style="width:100%" url=https://cdn.pixabay.com/photo/2015/05/19/07/44/browser-773215__180.png">')
+        .addTo(layerGroup);
 
 
+        // la latitude
+        let latitude = event.fields.lat_lon[0];
+        // la longitude
+        let longitude = event.fields.lat_lon[1];
+    
+            // pour tester, on les affiche dans la console
+            console.log(title + " " + latitude + " " + longitude)
+                 
+      }
+  
+    });
+  }
+  getData();
+
+  function onFormSubmit(event){
+    event.preventDefault();
+    console.log(searchInput.value);
+    let query = searchInput.value;
+
+    getData(searchInput.value)
+   // if(query == searchInput.value)
+    //"https://opendata.paris.fr/api/records/1.0/search/?dataset=que-faire-a-paris-&facet=category&facet=tags&facet=address_zipcode&facet=address_city&facet=pmr&facet=blind&facet=deaf&facet=access_type&facet=price_type" + query;
+    //alert('coucou');
+
+    //getData(searchInput.value);
+    //si get data(query) n'est pas vide, insérer la valeur dans le texte (url)
+    //console.log(category);
+  }
 
 
+  
 
+  document.getElementById('change').addEventListener('click', function() {
+    // Fly to a random location by offsetting the point -74.50, 40
+    // by up to 5 degrees.
+ 
+    var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+        minZoom: 0,
+        maxZoom: 20,
+    }).addTo(mymap);
+    var OpenRailwayMap = L.tileLayer('https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png', {
+	maxZoom: 19,
+	attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Map style: &copy; <a href="https://www.OpenRailwayMap.org">OpenRailwayMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+}).addTo(mymap);
+  });
+
+
+    document.getElementById('change2').addEventListener('click', function() {
+      // Fly to a random location by offsetting the point -74.50, 40
+      // by up to 5 degrees.
+      var Stamen_TonerBackground = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-background/{z}/{x}/{y}{r}.{ext}', {
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        subdomains: 'abcd',
+        minZoom: 0,
+        maxZoom: 20,
+        ext: 'png'
+    }).addTo(mymap);
+      var OpenRailwayMap = L.tileLayer('https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png', {
+	maxZoom: 19,
+	attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Map style: &copy; <a href="https://www.OpenRailwayMap.org">OpenRailwayMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+}).addTo(mymap);
+    });
+
+    //changer la classe css bottom mode sombre/clair
